@@ -21,7 +21,7 @@ h1,h2,h3{
 </style>
 <h2 style="text-align: right;">
     <img src="assets/vegan.png" style="height: 48px; width: auto; overflow: hidden;">veg.fi | {{ day }}
-</h2>{% for name, foods in menu.items() %}
+</h2>{% for name, foods in menu %}
 <h3>{{ name }}</h3>{% for food in foods %}
 <p>
 
@@ -40,8 +40,8 @@ h1,h2,h3{
 
 
 {{ food[0] }}</p>{% endfor %}{% endfor %}
-{% if not menu.items() %}<br><br><br><p><em>Ei ruokia tälle päivälle. :(</em></p><br>{% endif %}
+{% if not menu %}<br><br><br><p><em>Ei ruokia tälle päivälle. :(</em></p><br>{% endif %}
 <hr>
-<p style="font-size:12px;">{% if menu.items() %} (A) Contains allergens | (G) Gluten free{% endif %}
+<p style="font-size:12px;">{% if menu %} (A) Contains allergens | (G) Gluten free{% endif %}
 <span style="float: right">Last updated {{ update_time }}</span>
 </p>
