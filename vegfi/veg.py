@@ -5,6 +5,7 @@ Batch script for generating pre-rendered veg.fi menu pages.
 """
 
 from datetime import datetime
+from datetime import timedelta
 import logging
 import re
 import requests
@@ -99,8 +100,7 @@ def get_menu(lang='fi', date=datetime.today()):
     update_time = datetime.now().strftime('%a %d %b %Y %H:%M')
     logger.debug("Update time: %s" % update_time)
 
-    logger.debug('date.weekday(): %s' % date.weekday())
-    weekday = 3
+    weekday = date.weekday()
     logger.debug('weekday: %s' % weekday)
     day_name = get_weekday_name(weekday)
 
@@ -120,10 +120,14 @@ def get_menu(lang='fi', date=datetime.today()):
             logger.debug(msg.format(name, len(meals_lang)))
             continue
 
-        meal_iter = (extract_vegan_meal(m) for m in meals_lang[weekday])
-        vegmeals_local = [meal for meal in meal_iter if meal is not None]
-        if vegmeals_local:
-            vegmeals[name] = vegmeals_local
+        try:
+            meal_iter = (extract_vegan_meal(m) for m in meals_lang[weekday])
+            vegmeals_local = [meal for meal in meal_iter if meal is not None]
+            if vegmeals_local:
+                vegmeals[name] = vegmeals_local
+        except IndexError:
+            msg = 'Caught error iterating on restaurant \'{}\' (got {} dishes)'
+            logger.debug(msg.format(name, len(meals_lang)))
 
     sorted_meals = sorted(vegmeals.items())
     return sorted_meals, day_name, update_time
@@ -153,9 +157,23 @@ def render_html():
     with open(TEMPLATE_FILE, 'r') as template_file:
         template = Template(template_file.read())
 
-    menu, day, updated = get_menu()
+    # Get menu dict, day string, and update time datetime for today.
+    menu_today, day_today, updated_today = get_menu()
 
-    html_rendered = template.render(day=day, menu=menu, update_time=updated)
+    # Then for tomorrow.
+    tomorrow = datetime.today() + timedelta(days=1)
+    menu_tomorrow, day_tomorrow, updated_tomorrow = get_menu(date=tomorrow)
+
+    # If tomorrow is Mon, we must discard menu as it is for the previous Mon.
+    if day_tomorrow == 'maanantai':
+        menu_tomorrow = {}
+
+    # Render template with information for today and tomorrow.
+    html_rendered = template.render(
+            menu=[menu_today, menu_tomorrow],
+            day=[day_today, day_tomorrow],
+            updated=[updated_today, updated_tomorrow],
+            )
 
     # Save rendered html to file.
     with open('rendered.html', 'w') as rendered_html:
