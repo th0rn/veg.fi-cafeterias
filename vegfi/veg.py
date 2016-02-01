@@ -120,10 +120,14 @@ def get_menu(lang='fi', date=datetime.today()):
             logger.debug(msg.format(name, len(meals_lang)))
             continue
 
-        meal_iter = (extract_vegan_meal(m) for m in meals_lang[weekday])
-        vegmeals_local = [meal for meal in meal_iter if meal is not None]
-        if vegmeals_local:
-            vegmeals[name] = vegmeals_local
+        try:
+            meal_iter = (extract_vegan_meal(m) for m in meals_lang[weekday])
+            vegmeals_local = [meal for meal in meal_iter if meal is not None]
+            if vegmeals_local:
+                vegmeals[name] = vegmeals_local
+        except IndexError:
+            msg = 'Caught error iterating on restaurant \'{}\' (got {} dishes)'
+            logger.debug(msg.format(name, len(meals_lang)))
 
     sorted_meals = sorted(vegmeals.items())
     return sorted_meals, day_name, update_time
