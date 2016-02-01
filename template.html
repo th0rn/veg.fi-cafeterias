@@ -18,13 +18,21 @@ body{
 h1,h2,h3{
     line-height:1.2
 }
+#day1-content{
+    display:none;
+}
 </style>
+{% for i in range(2) %}
+<div id="day{{ i }}-content">
 <h2 style="text-align: right;">
-    <img src="assets/vegan.png" style="height: 48px; width: auto; overflow: hidden;">veg.fi | {{ day }}
-</h2>{% for name, foods in menu.items() %}
-<h3>{{ name }}</h3>{% for food in foods %}
+    <span id="day{{ i }}">{% if i == 1 %}◃ {% endif %}{{ day[i] }}{% if i == 0 %} ▹{% endif %}</span>
+    <img src="assets/vegan.png" style="height: 48px; width: auto; overflow: hidden;">
+    veg.fi
+</h2>
+{% for name, foods in menu[i].items() %}
+<h3>{{ name }}</h3>
+{% for food in foods %}
 <p>
-
 {% if food[1] == 'potato' %}<img src="assets/potato.png" style="height: 24px; width: auto; overflow: hidden;">{% endif %}
 {% if food[1] == 'carrot' %}<img src="assets/carrot.png" style="height: 24px; width: auto; overflow: hidden;">{% endif %}
 {% if food[1] == 'strawberry' %}<img src="assets/strawberry.png" style="height: 24px; width: auto; overflow: hidden;">{% endif %}
@@ -37,11 +45,33 @@ h1,h2,h3{
 {% if food[1] == 'stew' %}<img src="assets/stew.png" style="height: 24px; width: auto; overflow: hidden;">{% endif %}
 {% if food[1] == 'tomato' %}<img src="assets/tomato.png" style="height: 24px; width: auto; overflow: hidden;">{% endif %}
 {% if food[1] == 'generic' %}<img src="assets/generic.png" style="height: 24px; width: auto; overflow: hidden;">{% endif %}
-
-
-{{ food[0] }}</p>{% endfor %}{% endfor %}
-{% if not menu.items() %}<br><br><br><p><em>Ei ruokia tälle päivälle. :(</em></p><br>{% endif %}
-<hr>
-<p style="font-size:12px;">{% if menu.items() %} (A) Contains allergens | (G) Gluten free{% endif %}
-<span style="float: right">Last updated {{ update_time }}</span>
+{{ food[0] }}
 </p>
+{% endfor %}
+{% endfor %}
+{% if not menu[i].items() %}<br><br><br><p><strong>Couldn't find any food. :(</strong></p><br>
+{% if day[i] == 'maanantai'%}<p><em>Note: Monday's food choices are not available until after midnight on Sunday-Monday night.</em></p>
+{% endif %}
+{% endif %}
+<hr>
+<p style="font-size:12px;">
+{% if menu[i].items() %}
+ (A) Contains allergens | (G) Gluten free | (VS) Contains fresh garlic
+{% endif %}
+<span style="float: right">Last updated {{ updated[i] }}</span>
+</p>
+</div>
+{% endfor %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script>
+<!-- document.getElementById("day0").addEventListener("click", function( event ) { -->
+    <!-- document.getElementById("day0-content").style.display = "none"; -->
+$( "#day0" ).click(function() {
+    $( "#day0-content" ).hide();
+    $( "#day1-content" ).show();
+});
+$( "#day1" ).click(function() {
+    $( "#day1-content" ).hide();
+    $( "#day0-content" ).show();
+});
+</script>

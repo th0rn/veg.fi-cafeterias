@@ -3,6 +3,7 @@
 """<+Module Description.+>"""
 
 from datetime import datetime
+from datetime import timedelta
 import json
 import logging
 import re
@@ -80,9 +81,9 @@ def get_menu(lang='fi', date=datetime.today()):
     response = requests.get(SOURCE_API_URL)
     response_content = response.text
     response_json = json.loads(response_content)
-    vegmeals = dict()
+    vegmeals = {}
     logging.debug('date.weekday(): %s' % date.weekday())
-    weekday = min(date.weekday(), 3)
+    weekday = date.weekday()
     logging.debug('weekday: %s' % weekday)
 
     for restaurant in response_json:
@@ -139,11 +140,25 @@ def render_html():
     with open(TEMPLATE_FILE, 'r') as template_file:
         template = Template(template_file.read())
 
-    menu, day, updated = get_menu()
+    # Get menu dict, day string, and update time datetime for today.
+    menu_today, day_today, updated_today = get_menu()
 
-    html_rendered = template.render(day=day, menu=menu, update_time=updated)
+    # Then for tomorrow.
+    tomorrow = datetime.today() + timedelta(days=1)
+    menu_tomorrow, day_tomorrow, updated_tomorrow = get_menu(date=tomorrow)
 
-    # Save rendered html to file.
+    # If tomorrow is Mon, we must discard menu as it is for the previous Mon.
+    if day_tomorrow == 'maanantai':
+        menu_tomorrow = {}
+
+    # Render template with information for today and tomorrow.
+    html_rendered = template.render(
+            menu=[menu_today, menu_tomorrow],
+            day=[day_today, day_tomorrow],
+            updated=[updated_today, updated_tomorrow],
+            )
+
+    # Write filled-in template to file.
     with open('rendered.html', 'w') as rendered_html:
         rendered_html.write(html_rendered)
 
