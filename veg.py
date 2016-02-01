@@ -112,14 +112,15 @@ def get_menu(lang='fi', date=datetime.today()):
 
     update_time = datetime.now().strftime('%a %d %b %Y %H:%M')
     logging.debug("Update time: %s" % update_time)
-    return vegmeals, day_name, update_time
+    sorted_meals = sorted(vegmeals.items())
+    return sorted_meals, day_name, update_time
 
 
 def get_plaintext_menu(lounas_dict):
     """Returns a plaintext aggregation of filtered meals for each restaurant"""
 
     string = ""
-    for name, meals in lounas_dict.items():
+    for name, meals in sorted(lounas_dict.items()):
         if meals:
             string += u"%s\n" % name.upper()
             for meal in meals:
