@@ -29,7 +29,7 @@ h1,h2,h3{
     <img src="assets/vegan.png" style="height: 48px; width: auto; overflow: hidden;">
     veg.fi
 </h2>
-{% for name, foods in menu[i].items() %}
+{% for name, foods in menu[i] %}
 <h3>{{ name }}</h3>
 {% for food in foods %}
 <p>
@@ -49,13 +49,13 @@ h1,h2,h3{
 </p>
 {% endfor %}
 {% endfor %}
-{% if not menu[i].items() %}<br><br><br><p><strong>Couldn't find any food. :(</strong></p><br>
+{% if not menu[i] %}<br><br><br><p><strong>Couldn't find any food. :(</strong></p><br>
 {% if day[i] == 'maanantai'%}<p><em>Note: Monday's food choices are not available until after midnight on Sunday-Monday night.</em></p>
 {% endif %}
 {% endif %}
 <hr>
 <p style="font-size:12px;">
-{% if menu[i].items() %}
+{% if menu[i] %}
  (A) Contains allergens | (G) Gluten free | (VS) Contains fresh garlic
 {% endif %}
 <span style="float: right">Last updated {{ updated[i] }}</span>
