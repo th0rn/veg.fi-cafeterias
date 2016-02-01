@@ -114,20 +114,16 @@ def get_menu(lang='fi', date=datetime.today()):
         name = restaurant['name']
         meals = restaurant['meals']
         meals_lang = meals[lang]
-        if len(meals_lang) < weekday - 1:
+        if len(meals_lang) <= weekday:
             # Not enough days to reach this weekday... somehow
             msg = 'Number of days :: len(meals_lang): {} {}'
             logger.debug(msg.format(name, len(meals_lang)))
             continue
 
-        try:
-            meal_iter = (extract_vegan_meal(m) for m in meals_lang[weekday])
-            vegmeals_local = [meal for meal in meal_iter if meal is not None]
-            if vegmeals_local:
-                vegmeals[name] = vegmeals_local
-        except IndexError:
-            msg = 'Caught error iterating on restaurant \'{}\' (got {} dishes)'
-            logger.debug(msg.format(name, len(meals_lang)))
+        meal_iter = (extract_vegan_meal(m) for m in meals_lang[weekday])
+        vegmeals_local = [meal for meal in meal_iter if meal is not None]
+        if vegmeals_local:
+            vegmeals[name] = vegmeals_local
 
     sorted_meals = sorted(vegmeals.items())
     return sorted_meals, day_name, update_time
