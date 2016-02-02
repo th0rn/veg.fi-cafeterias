@@ -30,7 +30,7 @@ h3 span {
 {% for i in range(2) %}
 <div id="day{{ i }}-content">
 <h2 style="text-align: right;">
-    <span id="day{{ i }}">{% if i == 1 %}◃ {% endif %}{{ day[i] }}{% if i == 0 %} ▹{% endif %}</span>
+    <span id="day{{ i }}" style="border: 1px solid #617C58; border-radius: 13px; padding: 7px 15px;">{% if i == 1 %}◃ {% endif %}{{ day[i] }}{% if i == 0 %} ▹{% endif %}</span>
     <img src="assets/vegan.png" style="height: 48px; width: auto; overflow: hidden;">
     veg.fi
 </h2>
