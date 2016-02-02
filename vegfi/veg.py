@@ -190,13 +190,13 @@ def render_html():
 
     # Get menu dict, day string, and update time datetime for today.
     menu_today, day_today, updated_today = get_menu()
-    today_index = DAYS(day_today)
+    today_index = DAYS.index(day_today)
     hours_today = get_cafeteria_hours()
 
     # Then for tomorrow.
     tomorrow = datetime.today() + timedelta(days=1)
     menu_tomorrow, day_tomorrow, updated_tomorrow = get_menu(date=tomorrow)
-    tomorrow_index = DAYS(day_tomorrow)
+    tomorrow_index = DAYS.index(day_tomorrow)
 
     # If tomorrow is Mon, we must discard menu as it is for the previous Mon.
     if day_tomorrow == 'maanantai':
