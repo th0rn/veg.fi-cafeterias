@@ -18,6 +18,11 @@ body{
 h1,h2,h3{
     line-height:1.2
 }
+h3 span {
+    font-size: 12px;
+    font-weight: 300;
+    padding-left: 3%;
+}
 #day1-content{
     display:none;
 }
@@ -30,7 +35,7 @@ h1,h2,h3{
     veg.fi
 </h2>
 {% for name, foods in menu[i] %}
-<h3>{{ name }}</h3>
+<h3>{{ name }}<span>{{ hours[0][name][day_index[i]]['open'].strftime('%H:%M') }} - {{ hours[0][name][day_index[i]]['close'].strftime('%H:%M') }}</span></h3>
 {% for food in foods %}
 <p>
 {% if food[1] == 'potato' %}<img src="assets/potato.png" style="height: 24px; width: auto; overflow: hidden;">{% endif %}

@@ -4,6 +4,7 @@
 Batch script for generating pre-rendered veg.fi menu pages.
 """
 
+from calendar import weekheader
 from datetime import datetime
 from datetime import timedelta
 import logging
@@ -45,6 +46,36 @@ MEAL_TYPES = (
 )
 
 MEAL_CLEAN_RC = re.compile('(?:, L, M, Veg)|(?:\*, )')
+
+
+def get_cafeteria_hours():
+    days = weekheader(3).split(' ')
+    restaurants = retrieve_meal_data()
+    restaurant_hours = {}
+    for restaurant in restaurants:
+        hours = {}
+        name = restaurant.get('name')
+        hours_blob = restaurant.get('open')
+
+        # separate by ranges
+        hours_ranges_by_date_ranges = hours_blob.split(', ')
+        # separate each range into day ranges and time ranges
+        ranges = []
+        for i in range(len(hours_ranges_by_date_ranges)):
+            ranges.append(hours_ranges_by_date_ranges[i].split(' '))
+        for i in range(len(ranges)):
+            for ii in range(days.index(ranges[i][0][:3]),
+                            days.index(ranges[i][0][-3:]) + 1):
+                hours[ii] = {
+                        'open': datetime.strptime(ranges[i][1][:5], '%H:%M'),
+                        'close': datetime.strptime(ranges[i][1][-5:], '%H:%M'),
+                        }
+
+        restaurant_hours[name] = hours
+
+    msg = 'All hours: {}'
+    logger.debug(msg.format(restaurant_hours))
+    return restaurant_hours
 
 
 def get_weekday_name(weekday_index):
@@ -159,10 +190,13 @@ def render_html():
 
     # Get menu dict, day string, and update time datetime for today.
     menu_today, day_today, updated_today = get_menu()
+    today_index = DAYS(day_today)
+    hours_today = get_cafeteria_hours()
 
     # Then for tomorrow.
     tomorrow = datetime.today() + timedelta(days=1)
     menu_tomorrow, day_tomorrow, updated_tomorrow = get_menu(date=tomorrow)
+    tomorrow_index = DAYS(day_tomorrow)
 
     # If tomorrow is Mon, we must discard menu as it is for the previous Mon.
     if day_tomorrow == 'maanantai':
@@ -173,6 +207,8 @@ def render_html():
             menu=[menu_today, menu_tomorrow],
             day=[day_today, day_tomorrow],
             updated=[updated_today, updated_tomorrow],
+            hours=[hours_today],
+            day_index=[today_index, tomorrow_index],
             )
 
     # Save rendered html to file.
