@@ -4,6 +4,7 @@
 Batch script for generating pre-rendered veg.fi menu pages.
 """
 
+from argparse import ArgumentParser
 from datetime import datetime
 from datetime import timedelta
 import logging
@@ -15,12 +16,13 @@ from jinja2 import Template
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8.8s [%(name)s:%(lineno)s] %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
-    level=logging.DEBUG)
+    level=logging.WARN)
 logger = logging.getLogger(__name__)
 
 
 SOURCE_API_URL = 'http://www.lounasaika.net/api/v1/menus.json'
 TEMPLATE_FILE = 'template.html'
+OUTPUT_FILE = 'rendered.html'
 
 DAYS = ('maanantai', 'tiistai', 'keskiviikko', 'torstai', 'perjantai',
         'lauantai', 'sunnuntai')
@@ -150,7 +152,7 @@ def get_plaintext_menu(lounas_dict):
     return string
 
 
-def render_html():
+def render_html(output_dir):
     """Render HTML with content."""
 
     # Read html template from file.
@@ -176,7 +178,8 @@ def render_html():
             )
 
     # Save rendered html to file.
-    with open('rendered.html', 'w') as rendered_html:
+    with open(output_dir + OUTPUT_FILE, 'w') as rendered_html:
+        logger.info('Writing out to: "%s".', output_dir + OUTPUT_FILE)
         rendered_html.write(html_rendered)
 
     return 0
@@ -185,7 +188,13 @@ def render_html():
 def main():
     """Run main."""
 
-    render_html()
+    parser = ArgumentParser()
+    parser.add_argument('--output-dir', nargs='?', default='./')
+    args = parser.parse_args()
+    logger.debug('parsed args: %s', args)
+    logger.debug('output_dir: %s', args.output_dir)
+
+    render_html(args.output_dir)
 
     return 0
 

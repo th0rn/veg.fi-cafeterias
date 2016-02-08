@@ -1,51 +1,27 @@
 #!/bin/bash
-# update.sh - generates a new rendered html page, moves it to the directory
-# being served, and attempts to inform if this might have failed.
 
-# Example use in dev environment:
-# ./update.sh rendered.html ./www/ ~/projects/veg.fi/
-# Used in production by cron, as per something like this:
-# 5 0 * * * ~/update.sh rendered.html /data/www/ ~/ >> cron.log
+# Used in production by cron, as per something like this in crontab:
+# 5 0 * * * ./update.sh >&2
+# In order to have cron send emails, add the following to crontab:
+# MAILTO=<your@email>
+# Then install a sendmail program, such as:
+# msmtp-mta
+# Sample ~/.msmtprc configuration:
+# # Set default values for all following accounts.
+# defaults
+# auth           on
+# tls            on
+# tls_trust_file /etc/ssl/certs/ca-certificates.crt
+# logfile        ~/.msmtp.log
 
-file="$1"
-out_path="$2"
-program_root_path="$3"
+# # yahoo
+# account yahoo
+# host smtp.mail.yahoo.com
+# user <yahoo_user>
+# from <yahoo_user>@yahoo.com
+# password <password>
 
-eval cd "$program_root_path" || {
-    date | tr -d '\n'
-    echo " --- UPDATE FAILED: Failed to cd to program directory."
-    exit 1
-}
+# # Set a default account
+# account default : yahoo
 
-if [ -f "$file" ]; then
-    date | tr -d '\n'
-    echo " --- Rendered template already exists here, even though it shouldn't. Removing..."
-    rm "$file"
-fi
-
-if [ -f "$file" ]; then
-    date | tr -d '\n'
-    echo " --- UPDATE FAILED: Couldn't remove previously rendered template."
-    exit 1
-fi
-
-PYTHONPATH="." "$HOME"/env/bin/python -m vegfi.veg
-
-if [ ! -f "$file" ]; then
-    date | tr -d '\n'
-    echo " --- UPDATE FAILED: Could not create file."
-    exit 1
-fi
-
-mv "$file" "$out_path""$file"
-
-if [ -f "$file" ]; then
-    date | tr -d '\n'
-    echo " --- UPDATE FAILED: Could not move rendered template to www dir (unless you're creating straight to www dir)."
-    exit 1
-fi
-
-date | tr -d '\n'
-echo " --- Success!"
-
-exit 0
+flock -n /tmp/vegfi.lock "$HOME"/env/bin/python -m vegfi.veg --output-dir /data/www/
